@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>L155A — The Volume-Guided Flashing System</title>
+  <meta name="description" content="High-precision bootable media creation and raw drive flashing with deterministic volume guidance and instant verification.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Hardware Concurrency Check for Fluid 60fps Tiering -->
+  <script>
+    (() => {
+      try {
+        const cores = navigator.hardwareConcurrency || 8;
+        if (cores > 4) {
+          document.documentElement.classList.add('enhanced');
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <!-- Ambient Spotlight Glow Tracking -->
+  <div class="ambient-spotlight" id="ambientSpotlight"></div>
+
+  <!-- Navigation -->
+  <header class="site-header">
+    <div class="header-inner container">
+      <a href="#" class="brand">
+        <svg class="brand-logo" width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M7 12H17M12 7V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+        </svg>
+        <span class="brand-name">L155A</span>
+        <span class="brand-badge">v2.4</span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#features">Architecture</a>
+        <a href="#pillars">Mechanisms</a>
+        <a href="#workflows">Workflows</a>
+        <a href="#benchmarks">Benchmarks</a>
+        <a href="#specs">Specifications</a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="#download" class="btn btn-primary btn-sm">Download</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container hero-content">
+        <div class="release-pill">
+          <span class="pill-dot"></span>
+          <span>L155A Release v2.4.1 Available</span>
+          <span class="pill-arrow">&rarr;</span>
+        </div>
+
+        <h1 class="hero-title">The volume-guided flashing system for mission-critical media.</h1>
+        <p class="hero-subtitle">
+          Eliminate failed boot cycles. Deterministic partition alignment, guaranteed ESP layout generation, and verified raw block streaming engineered for absolute boot reliability.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="#download" class="btn btn-primary btn-lg">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download for Windows
+          </a>
+          <a href="#specs" class="btn btn-secondary btn-lg">
+            Portable Edition (.exe)
+          </a>
+        </div>
+
+        <div class="hero-meta">
+          <span>Windows 10 / 11 (x64)</span>
+          <span class="meta-dot">&bull;</span>
+          <span>18.4 MB standalone</span>
+          <span class="meta-dot">&bull;</span>
+          <span class="mono">SHA-256: 4f82a9...c31b</span>
+        </div>
+
+        <!-- Interactive Hero UI Mockup Card -->
+        <div class="hero-mockup-wrapper">
+          <div class="app-window">
+            <div class="window-header">
+              <div class="window-dots">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+              </div>
+              <div class="window-title mono">L155A &mdash; Volume-Guided Flasher v2.4.1</div>
+              <div class="window-status mono">READY</div>
+            </div>
+
+            <div class="window-body">
+              <div class="config-grid">
+                <!-- Target Device -->
+                <div class="control-group">
+                  <label class="control-label">Target Storage Device</label>
+                  <div class="select-field">
+                    <span class="device-icon">&#128451;</span>
+                    <span class="device-text">SanDisk Extreme PRO 128GB &mdash; [Disk 2: \\.\PhysicalDrive2]</span>
+                    <span class="badge badge-success">LOCKED</span>
+                  </div>
+                </div>
+
+                <!-- Source ISO / Image -->
+                <div class="control-group">
+                  <label class="control-label">Boot Source Image</label>
+                  <div class="select-field">
+                    <span class="iso-icon">&#9672;</span>
+                    <span class="device-text">archlinux-2026.10-x86_64.iso (1.18 GB)</span>
+                    <span class="badge badge-neutral">VERIFIED</span>
+                  </div>
+                </div>
+
+                <!-- Partition Scheme -->
+                <div class="split-controls">
+                  <div class="control-group">
+                    <label class="control-label">Partition Scheme</label>
+                    <div class="toggle-pill active mono">GPT (Pure UEFI)</div>
+                  </div>
+                  <div class="control-group">
+                    <label class="control-label">Target File System</label>
+                    <div class="toggle-pill active mono">FAT32 + ESP Injection</div>
+                  </div>
+                  <div class="control-group">
+                    <label class="control-label">Cluster Alignment</label>
+                    <div class="toggle-pill active mono">4096 KB (4K Native)</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Live Telemetry Stream -->
+              <div class="telemetry-box">
+                <div class="telemetry-header">
+                  <span class="mono text-muted">I/O STREAM PIPELINE</span>
+                  <span class="mono text-success">STREAMING 124.8 MB/s</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-bar" style="width: 74%;"></div>
+                </div>
+                <div class="telemetry-stats mono">
+                  <span>Written: 896 MB / 1.18 GB</span>
+                  <span>Buffer: 64 MB Direct DMA</span>
+                  <span>ETA: 00:03s</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Logo Ticker / Hardware Validated -->
+    <section class="ticker-section">
+      <div class="container">
+        <p class="ticker-title">Tested &amp; hardware-validated across global flash controller architectures</p>
+        <div class="ticker-row mono">
+          <div class="ticker-item">SAMSUNG BAR PLUS</div>
+          <div class="ticker-item">SANDISK EXTREME PRO</div>
+          <div class="ticker-item">KINGSTON DATATRAVELER</div>
+          <div class="ticker-item">KIOXIA TRANS闪</div>
+          <div class="ticker-item">CORSAIR FLASH VOYAGER</div>
+          <div class="ticker-item">LEXAR JUMPDRIVE</div>
+          <div class="ticker-item">RASPBERRY PI CM4 NVME</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Three Interactive Pillars Section (Linear-Grade Mechanisms) -->
+    <section class="pillars-section" id="pillars">
+      <div class="container">
+        <h2 class="section-title">Engineered for absolute hardware precision.</h2>
+        <p class="section-subtitle">
+          Three dedicated engineering mechanisms working in lockstep to ensure every sector is bit-aligned, verified, and bootable without host-OS interference.
+        </p>
+
+        <div class="pillars-grid">
+          <!-- CARD 1: FIG 0.1 -->
+          <div class="pillar-card" id="cardFig1">
+            <div class="card-fig mono">FIG 0.1</div>
+
+            <div class="illustration-viewport" id="fig1Viewport">
+              <svg id="fig1Svg" xmlns="http://www.w3.org/2000/svg" width="265" height="262" viewBox="0 0 265 262" fill="none">
+                <!-- Sumbu vertikal putus-putus -->
+                <path d="M136.85 240V70" stroke="#3E3E44" stroke-width="0.75" stroke-dasharray="2 4" stroke-linecap="round"/>
+
+                <!-- Layer 4 (Bottom-most) -->
+                <g class="purpose-lift-layer" data-layer="4">
+                  <path class="layer-fill" fill="#08090A" d=""/>
+                  <path class="layer-stroke" stroke="#D0D6E0" stroke-width="0.5" d=""/>
+                  <path class="layer-edge" stroke="#3E3E44" stroke-width="0.5" d=""/>
+                  <path stroke="#3E3E44" stroke-linecap="round" stroke-width="0.5" d="m19.107 184.901 108.543 54.272a10.29 10.29 0 0 0 9.2 0l108.543-54.272"/>
+                </g>
+
+                <!-- Layer 3 -->
+                <g class="purpose-lift-layer" data-layer="3">
+                  <path class="layer-fill" fill="#08090A" d=""/>
+                  <path class="layer-stroke" stroke="#D0D6E0" stroke-width="0.5" d=""/>
+                  <path class="layer-edge" stroke="#3E3E44" stroke-width="0.5" d=""/>
+                  <path stroke="#3E3E44" stroke-linecap="round" stroke-width="0.5" d="m19.107 168.599 108.543 54.272a10.29 10.29 0 0 0 9.2 0l108.543-54.272"/>
+                </g>
+
+                <!-- Layer 2 -->
+                <g class="purpose-lift-layer" data-layer="2">
+                  <path class="layer-fill" fill="#08090A" d=""/>
+                  <path class="layer-stroke" stroke="#D0D6E0" stroke-width="0.5" d=""/>
+                  <path class="layer-edge" stroke="#3E3E44" stroke-width="0.5" d=""/>
+                  <path stroke="#3E3E44" stroke-linecap="round" stroke-width="0.5" d="m19.107 152.298 108.543 54.272a10.29 10.29 0 0 0 9.2 0l108.543-54.272"/>
+                </g>
+
+                <!-- Layer 1 -->
+                <g class="purpose-lift-layer" data-layer="1">
+                  <path class="layer-fill" fill="#08090A" d=""/>
+                  <path class="layer-stroke" stroke="#D0D6E0" stroke-width="0.5" d=""/>
+                  <path class="layer-edge" stroke="#3E3E44" stroke-width="0.5" d=""/>
+                  <path stroke="#3E3E44" stroke-linecap="round" stroke-width="0.5" d="m19.107 135.996 108.543 54.272a10.29 10.29 0 0 0 9.2 0l108.543-54.272"/>
+                </g>
+
+                <!-- Layer 0 (Top Layer with L155A Disk Glyph) -->
+                <g class="purpose-lift-layer" data-layer="0">
+                  <path class="layer-fill" fill="#08090A" d=""/>
+                  <path class="layer-stroke" stroke="#D0D6E0" stroke-width="0.5" d=""/>
+                  <path class="layer-edge" stroke="#D0D6E0" stroke-width="0.5" d=""/>
+                  <path stroke="#3E3E44" stroke-linecap="round" stroke-width="0.5" d="m19.107 119.695 108.543 54.272a10.29 10.29 0 0 0 9.2 0l108.543-54.272"/>
+
+                  <!-- L155A Core Emblem Icon -->
+                  <g transform="translate(136.85, 78) scale(0.65)" stroke="#D0D6E0" stroke-width="0.75" fill="none">
+                    <circle cx="0" cy="0" r="28" stroke="#3E3E44"/>
+                    <circle cx="0" cy="0" r="18" stroke="#62666D"/>
+                    <circle cx="0" cy="0" r="6" stroke="#D0D6E0" fill="#08090A"/>
+                    <line x1="-28" y1="0" x2="28" y2="0" stroke="#3E3E44" stroke-dasharray="2 2"/>
+                    <line x1="0" y1="-28" x2="0" y2="28" stroke="#3E3E44" stroke-dasharray="2 2"/>
+                  </g>
+                </g>
+
+                <!-- Invisible Interactive Hit Areas -->
+                <g class="hit-areas-group" id="fig1HitAreas"></g>
+              </svg>
+            </div>
+
+            <h3 class="card-heading">Volume-guided architecture</h3>
+            <p class="card-text">
+              Multi-layer partition layout isolation. MBR, GPT header, ESP boot stub, and raw kernel data are independently structured in discrete memory wafers before physical commit.
+            </p>
+          </div>
+
+          <!-- CARD 2: FIG 0.2 -->
+          <div class="pillar-card" id="cardFig2">
+            <div class="card-fig mono">FIG 0.2</div>
+
+            <div class="illustration-viewport">
+              <div class="agents-wrapper">
+                <!-- 3D Projected LED Dot Matrix Screens -->
+                <div class="grid-loader grid-loader-back" id="loaderBack"></div>
+                <div class="grid-loader grid-loader-left" id="loaderLeft"></div>
+                <div class="grid-loader grid-loader-right" id="loaderRight"></div>
+
+                <!-- Isometric Cubes Wireframe -->
+                <svg width="304" height="281" viewBox="0 0 304 281" fill="none" class="cubes-svg">
+                  <!-- Back Cube (Tall) -->
+                  <path fill="#08090A" stroke="#D0D6E0" stroke-width="0.5" d="M148.534 1.068a7.75 7.75 0 0 1 6.932 0l50.211 25.106a3.75 3.75 0 0 1 2.073 3.354v125.056c0 1.42-.803 2.718-2.073 3.354l-50.211 25.105a7.75 7.75 0 0 1-6.932 0l-50.21-25.105a3.75 3.75 0 0 1-2.074-3.354V29.528a3.75 3.75 0 0 1 2.073-3.354z"/>
+                  <path stroke="#2E2E32" stroke-linecap="round" stroke-width="0.5" d="m102 30.056 46.422 23.21a8 8 0 0 0 7.156 0L202 30.057"/>
+
+                  <!-- Left Cube (Medium) -->
+                  <path fill="#08090A" stroke="#D0D6E0" stroke-width="0.5" d="M84.534 53.069a7.75 7.75 0 0 1 6.932 0l50.211 25.105a3.75 3.75 0 0 1 2.073 3.353v73.057c0 1.42-.803 2.718-2.073 3.354l-50.211 25.105a7.75 7.75 0 0 1-6.932 0l-50.21-25.105a3.75 3.75 0 0 1-2.074-3.354V81.528a3.75 3.75 0 0 1 2.073-3.354z"/>
+                  <path stroke="#2E2E32" stroke-linecap="round" stroke-width="0.5" d="m38 82.056 46.422 23.211a8 8 0 0 0 7.156 0L138 82.056"/>
+
+                  <!-- Right Cube (Medium) -->
+                  <path fill="#08090A" stroke="#D0D6E0" stroke-width="0.5" d="M212.534 97.069a7.75 7.75 0 0 1 6.932 0l50.211 25.105a3.75 3.75 0 0 1 2.073 3.353v61.057c0 1.42-.803 2.718-2.073 3.354l-50.211 25.105a7.75 7.75 0 0 1-6.932 0l-50.211-25.105a3.75 3.75 0 0 1-2.073-3.354v-61.057a3.75 3.75 0 0 1 2.073-3.353z"/>
+                  <path stroke="#2E2E32" stroke-linecap="round" stroke-width="0.5" d="m166 126.056 46.422 23.211a8 8 0 0 0 7.156 0l46.422-23.211"/>
+
+                  <!-- Front Small Cube -->
+                  <path fill="#08090A" stroke="#3E3E44" stroke-width="0.5" d="M84.534 139.068a7.76 7.76 0 0 1 6.932 0l50.211 25.106a3.75 3.75 0 0 1 2.073 3.353v19.057c0 1.42-.803 2.718-2.073 3.354l-50.211 25.105a7.75 7.75 0 0 1-6.932 0l-50.21-25.105a3.75 3.75 0 0 1-2.074-3.354v-19.057a3.75 3.75 0 0 1 2.073-3.353z"/>
+                  <path stroke="#2E2E32" stroke-linecap="round" stroke-width="0.5" d="m38 168.056 46.422 23.211a8 8 0 0 0 7.156 0L138 168.056"/>
+                </svg>
+              </div>
+            </div>
+
+            <h3 class="card-heading">Automated verification engine</h3>
+            <p class="card-text">
+              Real-time hardware verification workers stream continuous cyclical hash checks. Bit-level parity, bad sector detection, and DMA write confirmation occur concurrently.
+            </p>
+          </div>
+
+          <!-- CARD 3: FIG 0.3 -->
+          <div class="pillar-card" id="cardFig3">
+            <div class="card-fig mono">FIG 0.3</div>
+
+            <div class="illustration-viewport" id="fig3Viewport">
+              <svg id="fig3Svg" xmlns="http://www.w3.org/2000/svg" width="272" height="267" viewBox="0 0 272 267" fill="none">
+                <!-- Group rendered by Framer-Motion Spring Engine -->
+                <g id="springSlabsGroup"></g>
+              </svg>
+            </div>
+
+            <h3 class="card-heading">Designed for raw throughput</h3>
+            <p class="card-text">
+              Bypasses host OS cached file buffering with asynchronous direct DMA memory mapping. Streams raw flash sectors with zero lockouts, micro-stutters, or stalled transfers.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deep-Dive Technical Workflows (Tabbed Component) -->
+    <section class="workflows-section" id="workflows">
+      <div class="container">
+        <h2 class="section-title">Bulletproof workflow pipeline from image to silicon.</h2>
+        <p class="section-subtitle">
+          Engineered to prevent the edge-cases that cause bricked installations, undetectable volume corruption, and UEFI boot halts.
+        </p>
+
+        <div class="workflow-tabs">
+          <div class="tab-buttons">
+            <button class="tab-btn active" data-tab="tab1">
+              <span class="mono tab-num">01</span>
+              <span class="tab-label">Dual-Tree Host Protection</span>
+            </button>
+            <button class="tab-btn" data-tab="tab2">
+              <span class="mono tab-num">02</span>
+              <span class="tab-label">Deterministic ESP Creation</span>
+            </button>
+            <button class="tab-btn" data-tab="tab3">
+              <span class="mono tab-num">03</span>
+              <span class="tab-label">Direct Sector I/O</span>
+            </button>
+          </div>
+
+          <div class="tab-panels">
+            <!-- TAB 1 -->
+            <div class="tab-panel active" id="tab1">
+              <div class="panel-content">
+                <div class="panel-text">
+                  <h3>Host Drive Lock &amp; Safety Isolation</h3>
+                  <p>
+                    L155A cross-verifies drive hardware bus topology (`USBSTOR`, `NVMe-over-PCIe`, `SCSI`). Internal boot drives, recovery partitions, and BitLocker-encrypted volumes are cryptographically excluded from the destination roster.
+                  </p>
+                  <ul class="feature-checklist mono">
+                    <li>&check; Kernel-level device exclusion list</li>
+                    <li>&check; Lock volume handles via FSCTL_LOCK_VOLUME</li>
+                    <li>&check; Prevent Windows OS unmount crashes</li>
+                  </ul>
+                </div>
+                <div class="panel-visual terminal-visual">
+                  <div class="terminal-bar">
+                    <span class="terminal-title mono">daemon/guard.rs &mdash; Host Filter</span>
+                  </div>
+                  <pre class="mono code-block"><code><span class="keyword">pub fn</span> <span class="fn">validate_target_bus</span>(target: &Device) -> <span class="type">Result</span>&lt;DriveSafe&gt; {
+    <span class="keyword">if</span> target.is_system_boot() || target.has_active_pagefile() {
+        <span class="keyword">return</span> <span class="type">Err</span>(SecurityViolation::HostProtected);
+    }
+    target.acquire_exclusive_lock()?;
+    <span class="type">Ok</span>(DriveSafe::Isolated)
+}</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 2 -->
+            <div class="tab-panel" id="tab2">
+              <div class="panel-content">
+                <div class="panel-text">
+                  <h3>Guaranteed UEFI ESP Boot Partition</h3>
+                  <p>
+                    Older ISO images lack compliant EFI system partitions for modern Secure Boot setups. L155A automatically constructs a dedicated FAT32 ESP stub containing signed EFI bootloaders (`BOOTX64.EFI`), maintaining boot compliance across all motherboard firmware.
+                  </p>
+                  <ul class="feature-checklist mono">
+                    <li>&check; Native UEFI Class 3 &amp; CSM backward compatibility</li>
+                    <li>&check; Automatic 100MB ESP boundary carving</li>
+                    <li>&check; Secure Boot certificate validation</li>
+                  </ul>
+                </div>
+                <div class="panel-visual terminal-visual">
+                  <div class="terminal-bar">
+                    <span class="terminal-title mono">partition/esp_builder.rs</span>
+                  </div>
+                  <pre class="mono code-block"><code><span class="comment">// Carving 100MB FAT32 ESP at Sector 2048</span>
+<span class="keyword">let</span> esp = gpt.create_partition(
+    PartitionType::EfiSystemPartition,
+    <span class="number">2048</span>,
+    <span class="number">206847</span>
+)?;
+esp.format_fat32_volume(<span class="string">"ESP_L155A"</span>)?;
+esp.inject_efi_stub(&signed_bootloader)?;</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 3 -->
+            <div class="tab-panel" id="tab3">
+              <div class="panel-content">
+                <div class="panel-text">
+                  <h3>Direct Unbuffered DMA Writes</h3>
+                  <p>
+                    Windows writes files through system file cache buffers that frequently choke on sustained gigabyte transfers. L155A initiates `FILE_FLAG_NO_BUFFERING` and `FILE_FLAG_WRITE_THROUGH` sector pipelines directly into the USB controller's internal buffer.
+                  </p>
+                  <ul class="feature-checklist mono">
+                    <li>&check; Zero memory allocation stall in host OS</li>
+                    <li>&check; Consistent 120+ MB/s writes on USB 3.2 Gen 2</li>
+                    <li>&check; Real-time CRC32 streaming parity</li>
+                  </ul>
+                </div>
+                <div class="panel-visual terminal-visual">
+                  <div class="terminal-bar">
+                    <span class="terminal-title mono">io/dma_writer.rs</span>
+                  </div>
+                  <pre class="mono code-block"><code><span class="keyword">let</span> flags = FILE_FLAG_NO_BUFFERING | FILE_FLAG_WRITE_THROUGH;
+<span class="keyword">let</span> handle = open_physical_drive(drive_id, flags)?;
+<span class="keyword">while let</span> <span class="type">Some</span>(chunk) = stream.next_chunk() {
+    handle.write_aligned_sector(chunk)?;
+    telemetry.update_rate(chunk.len());
+}</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benchmark Comparison Table -->
+    <section class="benchmarks-section" id="benchmarks">
+      <div class="container">
+        <h2 class="section-title">Speed, precision, and verified success rates.</h2>
+        <p class="section-subtitle">
+          Measured on standard USB 3.2 Gen 1 hardware flashing a 5.4 GB Windows 11 installation media.
+        </p>
+
+        <div class="table-card">
+          <table class="benchmark-table">
+            <thead>
+              <tr>
+                <th>Flashing Utility</th>
+                <th>Throughput</th>
+                <th>Validation Pass</th>
+                <th>ESP Generation</th>
+                <th>Host Lock Safety</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="highlight-row">
+                <td>
+                  <strong class="highlight-name">L155A v2.4</strong>
+                  <span class="badge badge-success">RECOMMENDED</span>
+                </td>
+                <td class="mono font-semibold">124.8 MB/s</td>
+                <td class="mono text-success">&check; Dual CRC32/SHA-256</td>
+                <td class="mono text-success">&check; Automatic FAT32 Stub</td>
+                <td class="mono text-success">&check; Dual-Tree Kernel Lock</td>
+              </tr>
+              <tr>
+                <td>Legacy Windows Flasher</td>
+                <td class="mono text-muted">48.2 MB/s</td>
+                <td class="mono text-muted">&cross; None (Unverified)</td>
+                <td class="mono text-muted">&cross; Manual</td>
+                <td class="mono text-muted">&cross; Host Risk</td>
+              </tr>
+              <tr>
+                <td>Standard Raw Imager</td>
+                <td class="mono text-muted">78.5 MB/s</td>
+                <td class="mono text-muted">&check; Post-write only (Slow)</td>
+                <td class="mono text-muted">&cross; ISO Dependent</td>
+                <td class="mono text-muted">&cross; Basic OS prompt</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Download & Specifications Section -->
+    <section class="download-section" id="download">
+      <div class="container download-container">
+        <div class="download-card">
+          <div class="download-header">
+            <h2 class="download-title">Get L155A today. Free, open, and verified.</h2>
+            <p class="download-desc">
+              Deterministic, zero-compromise system media creator. No telemetry, no background services, no junkware.
+            </p>
+          </div>
+
+          <div class="download-actions">
+            <a href="#" class="btn btn-primary btn-xl">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Download L155A v2.4.1 Installer (x64)
+            </a>
+            <a href="#" class="btn btn-secondary btn-xl">
+              Download Portable Standalone (.exe)
+            </a>
+          </div>
+
+          <!-- Checksum Verification Box -->
+          <div class="checksum-box">
+            <div class="checksum-label mono">OFFICIAL SHA-256 HASH VERIFICATION</div>
+            <div class="checksum-value mono" id="checksumText">
+              4f82a93b5e7d1c8209bb7e12f90a541620c31be9450a8d71239c0fa1e6e9c31b
+            </div>
+            <button class="btn btn-copy btn-sm mono" id="copyChecksumBtn">Copy Hash</button>
+          </div>
+
+          <div class="download-footnotes mono">
+            <span>Requirements: Windows 10/11 x64 &bull; Administrator Privileges for Sector I/O</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <div class="brand">
+          <span class="brand-name">L155A</span>
+        </div>
+        <p class="footer-tagline">
+          The precision volume-guided flashing system for bootable installation media.
+        </p>
+      </div>
+
+      <div class="footer-columns">
+        <div class="footer-col">
+          <span class="footer-col-title mono">System</span>
+          <a href="#features">Architecture</a>
+          <a href="#pillars">Mechanisms</a>
+          <a href="#workflows">Workflows</a>
+          <a href="#benchmarks">Benchmarks</a>
+        </div>
+        <div class="footer-col">
+          <span class="footer-col-title mono">Documentation</span>
+          <a href="#">UEFI Quickstart</a>
+          <a href="#">ESP Partitioning</a>
+          <a href="#">Security Audits</a>
+          <a href="#">Driver Compatibility</a>
+        </div>
+        <div class="footer-col">
+          <span class="footer-col-title mono">Releases</span>
+          <a href="#">v2.4.1 (Current)</a>
+          <a href="#">Release Notes</a>
+          <a href="#">PGP Signature</a>
+          <a href="#">Source Repository</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container footer-bottom mono">
+      <span>&copy; 2026 L155A Project. Designed for world-class craft and rock-solid boot media.</span>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

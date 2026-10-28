@@ -1,0 +1,42 @@
+---
+import ChecksumCopyIsland from './islands/ChecksumCopyIsland';
+import { ArrowDownToLine, FileCode } from 'lucide-react';
+---
+
+<section class="py-28 relative z-10" id="download">
+  <div class="max-w-[1160px] mx-auto px-6">
+    <div class="rounded-2xl bg-surface-card border border-white/[0.04] p-10 md:p-16 text-center flex flex-col items-center shadow-glass-card">
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-4 max-w-[620px]">
+        Get L155A today. Free, open, and verified.
+      </h2>
+      <p class="text-base text-foreground-secondary max-w-[580px] leading-relaxed mb-10">
+        Deterministic, zero-compromise system media creator. No telemetry, no background services, no junkware.
+      </p>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap items-center justify-center gap-4 mb-8">
+        <a
+          href="#"
+          class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-foreground hover:bg-white text-background text-sm font-semibold tracking-tight transition-all shadow-md"
+        >
+          <ArrowDownToLine className="w-4 h-4" />
+          Download L155A v2.4.1 Installer (x64)
+        </a>
+        <a
+          href="#"
+          class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-surface hover:bg-surface-elevated text-foreground text-sm font-medium border border-border-hairline hover:border-border-subtle transition-all"
+        >
+          <FileCode className="w-4 h-4 text-foreground-muted" />
+          Download Portable Standalone (.exe)
+        </a>
+      </div>
+
+      <!-- Hash Checksum Island -->
+      <ChecksumCopyIsland client:visible />
+
+      <div class="mt-6 text-xs font-mono text-foreground-muted">
+        Requirements: Windows 10 / 11 x64 &bull; Administrator Privileges for Direct Sector I/O
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,27 @@
+---
+const controllers = [
+  'SAMSUNG BAR PLUS',
+  'SANDISK EXTREME PRO',
+  'KINGSTON DATATRAVELER',
+  'KIOXIA TRANSFLASH',
+  'CORSAIR FLASH VOYAGER',
+  'LEXAR JUMPDRIVE',
+  'RASPBERRY PI CM4 NVME',
+];
+---
+
+<section class="py-12 border-y border-border-hairline bg-surface/30 text-center">
+  <div class="max-w-[1160px] mx-auto px-6">
+    <p class="text-xs uppercase tracking-wider text-foreground-muted font-mono mb-6">
+      Tested &amp; hardware-validated across global flash controller architectures
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-8 md:gap-12 font-mono text-xs text-foreground-muted">
+      {controllers.map((name) => (
+        <span class="hover:text-foreground-secondary transition-colors cursor-default">
+          {name}
+        </span>
+      ))}
+    </div>
+  </div>
+</section>

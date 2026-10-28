@@ -1,0 +1,100 @@
+---
+import { Download } from 'lucide-react';
+import { STAGES, token, RELEASE, SETUP, PORTABLE } from '@/data/stages';
+
+// Boot-log choreography (ms). WRITE holds longer and draws a transfer bar.
+const timing: Record<string, { d: number; h: number }> = {
+  post: { d: 250, h: 260 },
+  detect: { d: 620, h: 320 },
+  partition: { d: 1060, h: 300 },
+  write: { d: 1480, h: 1250 },
+  verify: { d: 2850, h: 380 },
+  boot: { d: 3360, h: 260 },
+};
+const promptDelay = 3880;
+---
+
+<section id="top" class="relative">
+  <div class="max-w-[1280px] mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-16 sm:pb-24">
+    <p class="font-mono text-[11px] sm:text-xs text-foreground-muted flex flex-wrap gap-x-4 gap-y-1">
+      <span class="text-foreground-secondary">L155A boot media writer</span>
+      <span>{RELEASE.version}</span>
+      <span>Windows 10 / 11 · x64</span>
+      <span class="hidden sm:inline">(c) 2026 L155A Project</span>
+    </p>
+
+    <div class="mt-10 sm:mt-14 grid grid-cols-1 xl:grid-cols-12 gap-x-10 gap-y-12">
+      <div class="xl:col-span-6">
+        <h1
+          class="font-semibold tracking-[-0.04em] leading-[0.92] text-foreground"
+          style="font-size: clamp(3rem, 7.4vw, 6rem); text-wrap: balance;"
+        >
+          Flash it once.<br /><span class="text-accent">It boots.</span>
+        </h1>
+        <p class="mt-7 max-w-[34rem] text-[17px] leading-relaxed text-foreground-secondary" style="text-wrap: pretty;">
+          L155A locks your system disk, carves a compliant EFI partition, streams the image straight to the device with no OS
+          buffering, and verifies every sector while it writes.
+        </p>
+
+        <div class="mt-9 flex flex-wrap items-center gap-3">
+          <a href={SETUP.href} download={SETUP.file} class="btn btn-primary">
+            <Download className="w-4 h-4" aria-hidden="true" />
+            Download for Windows x64
+          </a>
+          <a href={PORTABLE.href} download={PORTABLE.file} class="btn btn-ghost">Portable .exe</a>
+        </div>
+        <p class="mt-5 font-mono text-[11px] text-foreground-muted flex flex-wrap gap-x-4 gap-y-1">
+          <span>{SETUP.size}</span>
+          <span>SHA-256 {SETUP.sha256.slice(0, 6)}…{SETUP.sha256.slice(-4)}</span>
+          <span>No telemetry · no services</span>
+        </p>
+      </div>
+
+      <!-- Boot log: the page's sequence in miniature -->
+      <div class="xl:col-span-6 xl:pt-3">
+        <div class="border-y border-white/[0.13]">
+          <div class="flex items-baseline justify-between gap-4 py-2.5 font-mono text-[11px] text-foreground-muted border-b border-white/[0.07]">
+            <span class="shrink-0">boot.log</span>
+            <span class="text-right truncate">E: · SanDisk Extreme PRO 128 GB · archlinux-2026.10</span>
+          </div>
+          <ol class="py-4 font-mono text-[12px] sm:text-[13px] leading-[1.9]" aria-label="Boot sequence summary">
+            {
+              STAGES.map((s) => {
+                const t = timing[s.id];
+                const fin = token(s.final);
+                return (
+                  <li class="bl-line" style={`--d:${t.d}ms;--h:${t.h}ms`}>
+                    <a href={`#${s.id}`} class="group grid grid-cols-[auto_1fr] sm:grid-cols-[auto_7.5rem_1fr] gap-x-3 hover:bg-white/[0.03] -mx-2 px-2">
+                      <span class="grid">
+                        <span class="st st-busy bl-run [grid-area:1/1]" aria-hidden="true">
+                          {token('····')}
+                        </span>
+                        <span class={`st bl-ok [grid-area:1/1] ${s.final === 'RDY' ? 'st-rdy' : 'st-ok'}`}>{fin}</span>
+                      </span>
+                      <span class="text-foreground group-hover:underline">{s.name}</span>
+                      <span class="col-start-2 sm:col-start-3 text-foreground-muted min-w-0">
+                        {s.id === 'write' ? (
+                          <span class="flex items-center gap-3">
+                            <span class="bl-prog relative block h-[6px] w-full max-w-[9rem] bg-white/[0.06]" aria-hidden="true">
+                              <i />
+                            </span>
+                            <span class="whitespace-nowrap">124.8 MB/s</span>
+                          </span>
+                        ) : (
+                          s.log
+                        )}
+                      </span>
+                    </a>
+                  </li>
+                );
+              })
+            }
+          </ol>
+          <div class="bl-line border-t border-white/[0.07] py-3 font-mono text-[13px] text-foreground" style={`--d:${promptDelay}ms`}>
+            <span class="text-foreground-muted">C:\&gt;</span> scroll to run each stage<span class="caret ml-1" aria-hidden="true"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

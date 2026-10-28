@@ -1,0 +1,145 @@
+---
+import '@/styles/global.css';
+import CommandPalette from '@/components/islands/CommandPalette';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = 'L155A writes bootable USB media with a locked host disk, a deterministic ESP, unbuffered sector writes, and inline verification.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#08090A" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Martian+Mono:wdth,wght@75..112.5,400..600&family=Schibsted+Grotesk:wght@400..700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="font-sans bg-background text-foreground">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60] btn btn-sm btn-primary"
+      >Skip to content</a
+    >
+    <slot />
+    <CommandPalette client:idle />
+
+    <script>
+      // Boot-stage tracker: drives the header track and each stage's status token
+      // from scroll position. Content is always visible; only status changes.
+      // Six-cell fill sweep, exactly the width of a final token's inner field.
+      const SPIN = ['·     ', '··    ', '···   ', '····  ', '····· ', '······', '····· ', '····  ', '···   ', '··    '];
+      const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-stage]'));
+      const tracks = new Map<string, HTMLElement>();
+      document.querySelectorAll<HTMLElement>('[data-track]').forEach((el) => tracks.set(el.dataset.track!, el));
+      const compactName = document.querySelector<HTMLElement>('[data-compact-name]');
+      const compactIdx = document.querySelector<HTMLElement>('[data-compact-idx]');
+      const compactFill = document.querySelector<HTMLElement>('[data-compact-fill]');
+
+      type State = 'wait' | 'busy' | 'ok';
+      const states = new Map<HTMLElement, State>();
+      let spinFrame = 0;
+
+      function setToken(section: HTMLElement, state: State) {
+        const tok = section.querySelector<HTMLElement>('[data-token]');
+        if (!tok) return;
+        const final = tok.dataset.final || '  OK  ';
+        tok.classList.remove('st-ok', 'st-busy', 'st-wait', 'st-rdy');
+        if (state === 'ok') {
+          tok.textContent = `[${final}]`;
+          tok.classList.add(final.trim() === 'RDY' ? 'st-rdy' : 'st-ok');
+        } else if (state === 'busy') {
+          tok.textContent = `[${SPIN[spinFrame % SPIN.length]}]`;
+          tok.classList.add('st-busy');
+        } else {
+          tok.textContent = '[ WAIT ]';
+          tok.classList.add('st-wait');
+        }
+      }
+
+      function update() {
+        const vh = window.innerHeight;
+        const probe = vh * 0.45;
+        // The last stage can never pass the probe; reaching the end of the
+        // document means the sequence has run to completion.
+        const atEnd = window.scrollY + vh >= document.documentElement.scrollHeight - 2;
+        type Hit = { el: HTMLElement; i: number; p: number };
+        let busy: Hit | null = null;
+        let lastOk: Hit | null = null;
+
+        sections.forEach((el, i) => {
+          const r = el.getBoundingClientRect();
+          let p = Math.min(1, Math.max(0, (probe - r.top) / r.height));
+          if (atEnd && i === sections.length - 1) p = 1;
+          const state: State = p <= 0 ? 'wait' : p >= 1 ? 'ok' : 'busy';
+          if (states.get(el) !== state) {
+            states.set(el, state);
+            el.dataset.state = state;
+            setToken(el, state);
+          }
+          const t = tracks.get(el.id);
+          if (t) {
+            t.dataset.state = state;
+            t.style.setProperty('--p', String(p));
+            if (state === 'busy') t.setAttribute('aria-current', 'step');
+            else t.removeAttribute('aria-current');
+          }
+          if (state === 'busy') busy = { el, i, p };
+          else if (state === 'ok') lastOk = { el, i, p };
+        });
+
+        if (compactName && compactIdx && compactFill) {
+          const c = busy ?? lastOk;
+          if (c) {
+            compactName.textContent = c.el.dataset.stage || '';
+            compactIdx.textContent = `${c.i + 1}/${sections.length}`;
+            compactFill.style.setProperty('--p', String((c.i + c.p) / sections.length));
+          } else {
+            compactName.textContent = 'STANDBY';
+            compactIdx.textContent = `0/${sections.length}`;
+            compactFill.style.setProperty('--p', '0');
+          }
+        }
+      }
+
+      let ticking = false;
+      function onScroll() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          update();
+          ticking = false;
+        });
+      }
+
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (sections.length) {
+        update();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll, { passive: true });
+        if (!reduce) {
+          setInterval(() => {
+            spinFrame++;
+            sections.forEach((el) => {
+              if (states.get(el) === 'busy') setToken(el, 'busy');
+            });
+          }, 110);
+        }
+      }
+    </script>
+  </body>
+</html>

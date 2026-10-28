@@ -1,0 +1,57 @@
+---
+interface Props {
+  file: string;
+  code: string;
+}
+
+const { file, code } = Astro.props;
+
+const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+// Single-pass tokenizer. Escaping happens per fragment so markup is never re-matched.
+const TOKEN =
+  /(\/\/[^\n]*)|("(?:[^"\\]|\\.)*")|('(?:[^'\\]|\\.)*')|\b(pub|fn|let|if|else|return|while|for|match|impl|mut|trait|struct|enum|use|as|in)\b|\b([A-Z][A-Z0-9_]{3,})\b|(\?)/g;
+
+const CLS: Record<number, string> = {
+  1: 'cb-com',
+  2: 'cb-str',
+  3: 'cb-str',
+  4: 'cb-kw',
+  5: 'cb-const',
+  6: 'cb-try',
+};
+
+function highlight(line: string) {
+  let out = '';
+  let last = 0;
+  TOKEN.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = TOKEN.exec(line))) {
+    out += esc(line.slice(last, m.index));
+    const group = m.slice(1).findIndex((g) => g !== undefined) + 1;
+    out += `<span class="${CLS[group]}">${esc(m[0])}</span>`;
+    last = m.index + m[0].length;
+  }
+  return out + esc(line.slice(last));
+}
+
+const lines = code.split('\n');
+---
+
+<figure class="border border-white/[0.1] bg-surface min-w-0">
+  <figcaption class="flex items-center justify-between gap-4 px-4 h-9 border-b border-white/[0.07] font-mono text-[11px] text-foreground-muted">
+    <span class="truncate">{file}</span>
+    <span class="shrink-0">rust</span>
+  </figcaption>
+  <pre
+    class="py-4 pr-4 overflow-x-auto font-mono text-[12px] leading-[1.75] text-foreground-secondary"
+    aria-label={file}
+  >{
+      lines.map((l, i) => (
+        <span class="cb-line">
+          <span class="cb-n" aria-hidden="true">{i + 1}</span>
+          <span set:html={highlight(l) || ' '} />
+        </span>
+      ))
+    }</pre>
+</figure>

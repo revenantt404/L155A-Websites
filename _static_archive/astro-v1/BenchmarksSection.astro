@@ -1,0 +1,115 @@
+---
+import { Check, X } from 'lucide-react';
+---
+
+<section class="py-28 relative z-10" id="benchmarks">
+  <div class="max-w-[1160px] mx-auto px-6">
+    <div class="text-center max-w-[680px] mx-auto mb-16">
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-4">
+        Speed, precision, and verified success rates.
+      </h2>
+      <p class="text-base text-foreground-secondary leading-relaxed">
+        Measured on standard USB 3.2 Gen 1 hardware flashing a 5.4 GB Windows 11 installation media.
+      </p>
+    </div>
+
+    <div class="rounded-xl bg-surface-card border border-border-hairline overflow-hidden shadow-glass-card">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-border-hairline bg-surface-elevated/40">
+              <th class="py-4 px-6 text-xs font-mono uppercase tracking-wider text-foreground-muted font-semibold">
+                Flashing Utility
+              </th>
+              <th class="py-4 px-6 text-xs font-mono uppercase tracking-wider text-foreground-muted font-semibold">
+                Throughput
+              </th>
+              <th class="py-4 px-6 text-xs font-mono uppercase tracking-wider text-foreground-muted font-semibold">
+                Validation Pass
+              </th>
+              <th class="py-4 px-6 text-xs font-mono uppercase tracking-wider text-foreground-muted font-semibold">
+                ESP Generation
+              </th>
+              <th class="py-4 px-6 text-xs font-mono uppercase tracking-wider text-foreground-muted font-semibold">
+                Host Lock Safety
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border-hairline text-sm">
+            <tr class="bg-surface-elevated/60">
+              <td class="py-4 px-6 font-semibold text-foreground flex items-center gap-2.5">
+                <span>L155A v2.4</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-accent-success/15 text-accent-success">
+                  RECOMMENDED
+                </span>
+              </td>
+              <td class="py-4 px-6 font-mono font-semibold text-foreground">124.8 MB/s</td>
+              <td class="py-4 px-6 font-mono text-accent-success flex items-center gap-1.5">
+                <Check className="w-4 h-4" />
+                <span>Dual CRC32/SHA-256</span>
+              </td>
+              <td class="py-4 px-6 font-mono text-accent-success">
+                <span class="inline-flex items-center gap-1.5">
+                  <Check className="w-4 h-4" />
+                  <span>Automatic FAT32 Stub</span>
+                </span>
+              </td>
+              <td class="py-4 px-6 font-mono text-accent-success">
+                <span class="inline-flex items-center gap-1.5">
+                  <Check className="w-4 h-4" />
+                  <span>Dual-Tree Kernel Lock</span>
+                </span>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="py-4 px-6 text-foreground-secondary font-medium">Legacy Windows Flasher</td>
+              <td class="py-4 px-6 font-mono text-foreground-muted">48.2 MB/s</td>
+              <td class="py-4 px-6 font-mono text-foreground-muted">
+                <span class="inline-flex items-center gap-1.5">
+                  <X className="w-4 h-4 opacity-50" />
+                  <span>None (Unverified)</span>
+                </span>
+              </td>
+              <td class="py-4 px-6 font-mono text-foreground-muted">
+                <span class="inline-flex items-center gap-1.5">
+                  <X className="w-4 h-4 opacity-50" />
+                  <span>Manual Setup</span>
+                </span>
+              </td>
+              <td class="py-4 px-6 font-mono text-foreground-muted">
+                <span class="inline-flex items-center gap-1.5">
+                  <X className="w-4 h-4 opacity-50" />
+                  <span>Host OS Risk</span>
+                </span>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="py-4 px-6 text-foreground-secondary font-medium">Standard Raw Imager</td>
+              <td class="py-4 px-6 font-mono text-foreground-muted">78.5 MB/s</td>
+              <td class="py-4 px-6 font-mono text-foreground-muted">
+                <span class="inline-flex items-center gap-1.5">
+                  <Check className="w-4 h-4 text-foreground-muted" />
+                  <span>Post-write only (Slow)</span>
+                </span>
+              </td>
+              <td class="py-4 px-6 font-mono text-foreground-muted">
+                <span class="inline-flex items-center gap-1.5">
+                  <X className="w-4 h-4 opacity-50" />
+                  <span>ISO Dependent</span>
+                </span>
+              </td>
+              <td class="py-4 px-6 font-mono text-foreground-muted">
+                <span class="inline-flex items-center gap-1.5">
+                  <X className="w-4 h-4 opacity-50" />
+                  <span>Basic OS Prompt</span>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>

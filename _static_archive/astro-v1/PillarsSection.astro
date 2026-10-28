@@ -1,0 +1,62 @@
+---
+import UsbPartitionTopologyIsland from './islands/UsbPartitionTopologyIsland';
+import SectorVerifyMatrixIsland from './islands/SectorVerifyMatrixIsland';
+import DmaStreamPipelineIsland from './islands/DmaStreamPipelineIsland';
+---
+
+<section class="py-28 relative z-10" id="pillars">
+  <div class="max-w-[1160px] mx-auto px-6">
+    <div class="text-center max-w-[680px] mx-auto mb-16">
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight text-foreground mb-4">
+        Engineered for absolute hardware precision.
+      </h2>
+      <p class="text-base text-foreground-secondary leading-relaxed">
+        Three dedicated engineering mechanisms working in lockstep to ensure every sector is bit-aligned, verified, and bootable without host-OS interference.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Card 1: Fig 0.1 -->
+      <div class="rounded-xl bg-surface-card border border-white/[0.04] p-6 flex flex-col justify-between shadow-glass-card">
+        <div class="font-mono text-xs text-foreground-muted mb-2">FIG 0.1</div>
+        <UsbPartitionTopologyIsland client:visible />
+        <div class="pt-4 text-left">
+          <h3 class="text-lg font-semibold text-foreground tracking-tight mb-2">
+            Volume-guided architecture
+          </h3>
+          <p class="text-sm text-foreground-secondary leading-relaxed">
+            Multi-layer partition layout isolation. MBR, GPT header, ESP boot stub, and raw kernel data are independently structured in discrete memory wafers before physical commit.
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 2: Fig 0.2 -->
+      <div class="rounded-xl bg-surface-card border border-white/[0.04] p-6 flex flex-col justify-between shadow-glass-card">
+        <div class="font-mono text-xs text-foreground-muted mb-2">FIG 0.2</div>
+        <SectorVerifyMatrixIsland client:visible />
+        <div class="pt-4 text-left">
+          <h3 class="text-lg font-semibold text-foreground tracking-tight mb-2">
+            Automated verification engine
+          </h3>
+          <p class="text-sm text-foreground-secondary leading-relaxed">
+            Real-time hardware verification workers stream continuous cyclical hash checks. Bit-level parity, bad sector detection, and DMA write confirmation occur concurrently.
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 3: Fig 0.3 -->
+      <div class="rounded-xl bg-surface-card border border-white/[0.04] p-6 flex flex-col justify-between shadow-glass-card">
+        <div class="font-mono text-xs text-foreground-muted mb-2">FIG 0.3</div>
+        <DmaStreamPipelineIsland client:visible />
+        <div class="pt-4 text-left">
+          <h3 class="text-lg font-semibold text-foreground tracking-tight mb-2">
+            Designed for raw throughput
+          </h3>
+          <p class="text-sm text-foreground-secondary leading-relaxed">
+            Bypasses host OS cached file buffering with asynchronous direct DMA memory mapping. Streams raw flash sectors with zero lockouts, micro-stutters, or stalled transfers.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

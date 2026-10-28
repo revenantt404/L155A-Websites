@@ -1,0 +1,433 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #08090a;
+    --surface: #0c0d0e;
+    --card: #0f1012;
+    --elev: #141517;
+    --subtle: #181a1d;
+    --fg: #ededed;
+    --fg2: #a0a6ad;
+    --fg3: #8a8f98;
+    --silver: #d0d6e0;
+    --ok: #22c55e;
+    --busy: #f59e0b;
+    --fault: #f87171;
+    --rule: rgba(255, 255, 255, 0.07);
+    --rule-strong: rgba(255, 255, 255, 0.13);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    color-scheme: dark;
+  }
+
+  html {
+    background: var(--bg);
+    color: var(--fg);
+    scroll-behavior: smooth;
+    scroll-padding-top: 4.5rem;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  .font-mono,
+  code,
+  kbd,
+  pre,
+  samp {
+    font-stretch: 87.5%;
+    font-variant-numeric: tabular-nums slashed-zero;
+  }
+
+  ::selection {
+    background: var(--silver);
+    color: var(--bg);
+  }
+
+  [data-tone='silver'] ::selection {
+    background: var(--bg);
+    color: var(--silver);
+  }
+
+  input,
+  textarea {
+    caret-color: var(--busy);
+  }
+
+  a {
+    text-underline-offset: 0.22em;
+    text-decoration-thickness: 1px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--silver);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  [data-tone='silver'] :focus-visible {
+    outline-color: var(--bg);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.14);
+    border: 2px solid var(--bg);
+    border-radius: 0;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--silver);
+  }
+}
+
+@layer components {
+  /* ---------- Buttons ---------- */
+  .btn {
+    @apply inline-flex items-center gap-2.5 h-11 px-4 rounded-[3px] text-sm font-medium select-none;
+    transition: background-color 150ms var(--ease-out), border-color 150ms var(--ease-out),
+      color 150ms var(--ease-out);
+  }
+  .btn-sm {
+    @apply h-8 px-3 text-[13px] gap-2;
+  }
+  .btn-primary {
+    background: var(--silver);
+    color: var(--bg);
+  }
+  .btn-primary:hover {
+    background: var(--fg);
+  }
+  .btn-ghost {
+    border: 1px solid var(--rule-strong);
+    color: var(--fg);
+  }
+  .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.26);
+  }
+  .btn:disabled,
+  .btn[aria-disabled='true'] {
+    opacity: 0.38;
+    cursor: not-allowed;
+  }
+  .btn-primary:disabled:hover {
+    background: var(--silver);
+  }
+
+  /* Inverse buttons for the silver BOOT stage */
+  .btn-ink {
+    background: var(--bg);
+    color: var(--silver);
+  }
+  .btn-ink:hover {
+    background: #1d1f22;
+  }
+  .btn-ink-ghost {
+    border: 1px solid rgba(8, 9, 10, 0.32);
+    color: var(--bg);
+  }
+  .btn-ink-ghost:hover {
+    background: rgba(8, 9, 10, 0.06);
+    border-color: rgba(8, 9, 10, 0.6);
+  }
+
+  kbd.key {
+    @apply inline-flex items-center h-5 px-1.5 rounded-[2px] font-mono text-[10px] leading-none;
+    border: 1px solid var(--rule-strong);
+    color: var(--fg2);
+  }
+
+  /* ---------- Code ---------- */
+  .cb-line {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: 0;
+  }
+  .cb-n {
+    text-align: right;
+    padding-right: 1rem;
+    color: #4a4e55;
+    user-select: none;
+  }
+  .cb-kw {
+    color: var(--silver);
+    font-weight: 500;
+  }
+  .cb-const {
+    color: var(--busy);
+  }
+  .cb-str {
+    color: #a7b0bd;
+  }
+  .cb-com {
+    color: var(--fg3);
+  }
+  .cb-try {
+    color: var(--ok);
+  }
+
+  /* ---------- Status tokens ---------- */
+  .st {
+    @apply font-mono whitespace-pre;
+  }
+  .st-ok {
+    color: var(--ok);
+  }
+  .st-busy {
+    color: var(--busy);
+  }
+  .st-wait {
+    color: var(--fg3);
+  }
+  .st-lock {
+    color: var(--fault);
+  }
+  .st-rdy {
+    color: var(--silver);
+  }
+  [data-tone='silver'] .st-ok {
+    color: #166534;
+  }
+  [data-tone='silver'] .st-busy {
+    color: #92400e;
+  }
+  [data-tone='silver'] .st-wait {
+    color: rgba(8, 9, 10, 0.62);
+  }
+  /* RDY is silver everywhere else, which would vanish on the silver stage. */
+  [data-tone='silver'] .st-rdy {
+    color: var(--bg);
+  }
+  [data-tone='silver'] .st-lock {
+    color: #991b1b;
+  }
+
+  /* ---------- Header stage track ---------- */
+  .trk {
+    color: var(--fg3);
+    transition: color 200ms var(--ease-out);
+  }
+  .trk:hover {
+    color: var(--fg);
+  }
+  .trk[data-state='busy'] {
+    color: var(--fg);
+  }
+  .trk[data-state='ok'] {
+    color: var(--fg2);
+  }
+  .trk-icon {
+    width: 11px;
+    height: 11px;
+    flex: none;
+    color: currentColor;
+    transition: color 200ms var(--ease-out), transform 200ms var(--ease-out);
+  }
+  .trk:hover .trk-icon {
+    transform: scale(1.1);
+  }
+  .trk-core {
+    opacity: 0.35;
+    transition: opacity 200ms var(--ease-out);
+  }
+  .trk[data-state='busy'] .trk-icon {
+    color: var(--busy);
+  }
+  .trk[data-state='busy'] .trk-core {
+    opacity: 1;
+  }
+  .trk[data-state='ok'] .trk-icon {
+    color: var(--ok);
+  }
+  .trk[data-state='ok'] .trk-core {
+    opacity: 1;
+  }
+  .trk-fill {
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;
+    transform: scaleX(var(--p, 0));
+    background: var(--busy);
+  }
+  .trk[data-state='ok'] .trk-fill {
+    background: var(--ok);
+    opacity: 0.6;
+  }
+
+  /* ---------- Boot log (hero) ---------- */
+  .bl-line {
+    animation: bl-type 240ms steps(24, end) var(--d, 0ms) both;
+  }
+  .bl-run {
+    animation: bl-off 1ms linear calc(var(--d, 0ms) + 240ms + var(--h, 300ms)) both;
+  }
+  .bl-ok {
+    animation: bl-on 1ms linear calc(var(--d, 0ms) + 240ms + var(--h, 300ms)) both;
+  }
+  .bl-prog > i {
+    display: block;
+    height: 100%;
+    background: var(--busy);
+    transform-origin: left center;
+    animation: bl-prog var(--h, 900ms) cubic-bezier(0.4, 0, 0.6, 1) calc(var(--d, 0ms) + 240ms) both,
+      bl-prog-done 1ms linear calc(var(--d, 0ms) + 240ms + var(--h, 900ms)) both;
+  }
+  .caret {
+    display: inline-block;
+    width: 0.6em;
+    height: 1.15em;
+    vertical-align: -0.2em;
+    background: var(--silver);
+    animation: blink 1.06s steps(1) infinite;
+  }
+
+  /* ---------- Sector verification matrix ---------- */
+  .sx-grid {
+    display: grid;
+    grid-template-columns: repeat(16, minmax(0, 1fr));
+    gap: 3px;
+  }
+  @media (min-width: 640px) {
+    .sx-grid {
+      grid-template-columns: repeat(32, minmax(0, 1fr));
+    }
+  }
+  .sx-cell {
+    aspect-ratio: 1;
+    background: var(--ok);
+    opacity: 0.85;
+  }
+  .sx-grid.is-armed .sx-cell {
+    background: var(--subtle);
+    opacity: 1;
+  }
+  .sx-grid.is-running .sx-cell {
+    animation: sx-verify 520ms steps(1) calc(var(--i) * 9ms) both;
+  }
+  .sx-grid.is-running .sx-cell[data-reread] {
+    animation: sx-reread 1400ms steps(1) calc(var(--i) * 9ms) both;
+  }
+  /* Confirmed, but keep the re-read chunks readable in the finished map. */
+  .sx-grid.is-done .sx-cell[data-reread] {
+    background: var(--fault);
+    opacity: 0.9;
+  }
+}
+
+@keyframes bl-type {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes bl-off {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes bl-on {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes bl-prog {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes bl-prog-done {
+  to {
+    background: rgba(208, 214, 224, 0.35);
+  }
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes sx-verify {
+  0% {
+    background: var(--subtle);
+  }
+  30% {
+    background: var(--busy);
+  }
+  100% {
+    background: var(--ok);
+    opacity: 0.85;
+  }
+}
+@keyframes sx-reread {
+  0% {
+    background: var(--subtle);
+  }
+  12% {
+    background: var(--busy);
+  }
+  40% {
+    background: var(--fault);
+  }
+  70% {
+    background: var(--busy);
+  }
+  100% {
+    background: var(--ok);
+    opacity: 0.85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+  .bl-line,
+  .bl-ok,
+  .bl-prog > i,
+  .caret,
+  .sx-grid.is-running .sx-cell {
+    animation: none !important;
+  }
+  .bl-run {
+    display: none;
+  }
+  .bl-prog > i {
+    background: rgba(208, 214, 224, 0.35);
+  }
+  .sx-grid.is-armed .sx-cell {
+    background: var(--ok);
+    opacity: 0.85;
+  }
+}

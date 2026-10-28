@@ -1,0 +1,136 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Header from '@/components/Header.astro';
+import Hero from '@/components/Hero.astro';
+import Stage from '@/components/Stage.astro';
+import Footer from '@/components/Footer.astro';
+import CodeBlock from '@/components/CodeBlock.astro';
+import DetectIsland from '@/components/islands/DetectIsland';
+import PartitionIsland from '@/components/islands/PartitionIsland';
+import WriteIsland from '@/components/islands/WriteIsland';
+import VerifyIsland from '@/components/islands/VerifyIsland';
+import DownloadManifest from '@/components/islands/DownloadManifest';
+import { Download } from 'lucide-react';
+import { RELEASE, SETUP, PORTABLE } from '@/data/stages';
+
+const guard = `pub fn validate_target_bus(target: &Device) -> Result<DriveSafe> {
+    if target.is_system_boot() || target.has_active_pagefile() {
+        return Err(SecurityViolation::HostProtected);
+    }
+    target.acquire_exclusive_lock()?;   // FSCTL_LOCK_VOLUME
+    Ok(DriveSafe::Isolated)
+}`;
+
+const writer = `let flags = FILE_FLAG_NO_BUFFERING | FILE_FLAG_WRITE_THROUGH;
+let handle = open_physical_drive(drive_id, flags)?;
+while let Some(chunk) = stream.next_chunk() {
+    handle.write_aligned_sector(chunk)?;
+    verifier.feed(&chunk);              // CRC32 runs alongside
+}`;
+
+const h2 = 'font-semibold tracking-[-0.03em] leading-[1.02] text-foreground';
+const h2Size = 'font-size: clamp(2rem, 4.2vw, 3.25rem); text-wrap: balance;';
+const lede = 'mt-5 max-w-[60ch] text-[17px] leading-relaxed text-foreground-secondary';
+---
+
+<Layout title="L155A · Bootable USB media, written once and verified">
+  <Header />
+  <main id="main">
+    <Hero />
+
+    <Stage id="post">
+      <h2 id="post-h" class={h2} style={h2Size}>Your system disk is off the table before anything starts.</h2>
+      <p class={lede}>
+        L155A reads the bus topology of every disk (USB, NVMe, SCSI) and drops the boot drive, recovery partitions, and active
+        BitLocker volumes from the target list before it asks Windows for a single handle. The volume it does write gets an
+        exclusive lock, so nothing can mount it mid-write.
+      </p>
+      <div class="mt-10 grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_16rem] gap-8 items-start">
+        <CodeBlock file="daemon/guard.rs" code={guard} />
+        <ul class="font-mono text-[12px] leading-relaxed text-foreground-secondary space-y-3">
+          <li><span class="st-lock">LOCK</span> boot + pagefile volumes excluded</li>
+          <li><span class="st-lock">LOCK</span> BitLocker + recovery partitions excluded</li>
+          <li><span class="st-ok">HOLD</span> exclusive handle on the target</li>
+        </ul>
+      </div>
+    </Stage>
+
+    <Stage id="detect">
+      <h2 id="detect-h" class={h2} style={h2Size}>Pick a volume, not a whole disk.</h2>
+      <p class={lede}>
+        Most flashers wipe the entire device. L155A targets one partition or one block of unallocated space and leaves everything
+        else on that disk where it was. Try it: the locked rows cannot be selected.
+      </p>
+      <div class="mt-10">
+        <DetectIsland client:visible />
+      </div>
+    </Stage>
+
+    <Stage id="partition">
+      <h2 id="partition-h" class={h2} style={h2Size}>Every stick gets an EFI partition that firmware accepts.</h2>
+      <p class={lede}>
+        Older and hand-built ISOs often ship without a compliant ESP, which is why modern Secure Boot machines skip them. L155A
+        carves a 100 MiB FAT32 ESP at LBA 2048 and injects a signed loader, with legacy BIOS boot kept alongside.
+      </p>
+      <div class="mt-10">
+        <PartitionIsland client:visible />
+      </div>
+    </Stage>
+
+    <Stage id="write">
+      <h2 id="write-h" class={h2} style={h2Size}>Straight to the device. No file cache in the way.</h2>
+      <p class={lede}>
+        Windows normally routes writes through a shared file cache that stalls on multi-gigabyte images. L155A opens the physical
+        drive unbuffered and write-through, so throughput holds steady from the first sector to the last.
+      </p>
+      <div class="mt-10">
+        <WriteIsland client:visible />
+      </div>
+      <div class="mt-10">
+        <CodeBlock file="io/dma_writer.rs" code={writer} />
+      </div>
+    </Stage>
+
+    <Stage id="verify">
+      <h2 id="verify-h" class={h2} style={h2Size}>Verified while it writes, not in a second pass.</h2>
+      <p class={lede}>
+        Each chunk is checked with CRC32 as it lands and the whole image is hashed with SHA-256. A mismatch is re-read on the spot,
+        so a finished write means a confirmed write, without waiting through a slow read-back.
+      </p>
+      <div class="mt-10">
+        <VerifyIsland client:visible />
+      </div>
+    </Stage>
+
+    <Stage id="boot" tone="silver">
+      <h2
+        id="boot-h"
+        class="font-semibold tracking-[-0.04em] leading-[0.95] text-background"
+        style="font-size: clamp(2.5rem, 6vw, 4.75rem); text-wrap: balance;"
+      >
+        Ready to boot.
+      </h2>
+      <p class="mt-5 max-w-[52ch] text-[17px] leading-relaxed text-background/75">
+        Free, with no telemetry, no background services, and nothing bundled. One installer, or a portable exe that runs from
+        anywhere.
+      </p>
+      <div class="mt-9 flex flex-wrap gap-3">
+        <a href={SETUP.href} download={SETUP.file} class="btn btn-ink">
+          <Download className="w-4 h-4" aria-hidden="true" />
+          Installer · {RELEASE.version} · x64
+        </a>
+        <a href={PORTABLE.href} download={PORTABLE.file} class="btn btn-ink-ghost">Portable .exe</a>
+      </div>
+      <div class="mt-12 max-w-[760px]">
+        <DownloadManifest client:visible />
+      </div>
+      <dl class="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-4 font-mono text-[12px] border-t border-background/20 pt-6 max-w-[760px]">
+        <div><dt class="text-background/60">OS</dt><dd class="mt-1 text-background">Windows 10 / 11</dd></div>
+        <div><dt class="text-background/60">Arch</dt><dd class="mt-1 text-background">x64</dd></div>
+        <div><dt class="text-background/60">Size</dt><dd class="mt-1 text-background">{RELEASE.size}</dd></div>
+        <div><dt class="text-background/60">Needs</dt><dd class="mt-1 text-background">Admin, for sector I/O</dd></div>
+      </dl>
+    </Stage>
+  </main>
+  <Footer />
+</Layout>
